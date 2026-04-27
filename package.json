@@ -4,7 +4,7 @@
   "description": "Pre-flight check for Midnight Network projects — catches version mismatches, duplicate ledgers, broken configs before they cost you hours of silent debugging.",
   "type": "module",
   "bin": {
-    "midnight-doctor": "./bin/midnight-doctor.js"
+    "midnight-doctor": "bin/midnight-doctor.js"
   },
   "main": "./lib/index.js",
   "exports": {
@@ -41,7 +41,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fredericosanntana/midnight-doctor.git"
+    "url": "git+https://github.com/fredericosanntana/midnight-doctor.git"
   },
   "bugs": {
     "url": "https://github.com/fredericosanntana/midnight-doctor/issues"
