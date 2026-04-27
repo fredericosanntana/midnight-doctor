@@ -1,6 +1,6 @@
 {
   "name": "midnight-doctor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pre-flight check for Midnight Network projects — catches version mismatches, duplicate ledgers, broken configs before they cost you hours of silent debugging.",
   "type": "module",
   "bin": {

@@ -93,27 +93,40 @@ The matrix encodes specific bugs and their fixes:
 | ID | Severity | What it catches |
 |----|----------|-----------------|
 | `npmrc-bad-registry` | error | `npm.midnight.network` in `.npmrc` |
-| `duplicate-ledger` | error | Two `@midnight-ntwrk/ledger-v7` in `node_modules` |
+| `duplicate-ledger-v7` | error | Two `@midnight-ntwrk/ledger-v7` in `node_modules` |
+| `duplicate-ledger-v8` | error | Two `@midnight-ntwrk/ledger-v8` in `node_modules` |
+| `ledger-v7-and-v8-coexist` | warn | Both ledger majors present (in-flight migration) |
 | `duplicate-runtime` | error | Two `@midnight-ntwrk/compact-runtime` in `node_modules` |
 | `facade-2x-init-bug` | warn | `wallet-sdk-facade@2.x` (standalone hang) |
 | `facade-major-mismatch` | error | `wallet-sdk-*` subpackages span multiple majors |
+| `proof-server-major-stale` | warn | `proof-server` major behind support matrix (pre-8.x) |
+| `node-major-stale` | warn | `midnight-node` older than 0.22.x line |
 | `indexer-subscription-block` | warn | Missing `subscription:` in `indexer.yml` |
 | `node-track-mismatch` | error | Docker node tag doesn't match SDK track |
 
 ## Compatibility matrix
 
-The verified matrix lives in [`data/compatibility-matrix.json`](data/compatibility-matrix.json) and is keyed by **track**. Current verified state (2026-04-27):
+The verified matrix lives in [`data/compatibility-matrix.json`](data/compatibility-matrix.json) and is keyed by **track**. The `current` track mirrors the official Midnight support matrix at [docs.midnight.network/relnotes/support-matrix](https://docs.midnight.network/relnotes/support-matrix).
 
-| Component | Current track |
-|-----------|--------------|
-| `@midnight-ntwrk/wallet-sdk` (barrel) | `1.0.0` |
-| `@midnight-ntwrk/wallet-sdk-facade` | `4.0.0` |
-| `@midnight-ntwrk/midnight-js-*` | `4.0.4` |
-| `@midnight-ntwrk/compact-runtime` | `0.15.0` |
-| `@midnight-ntwrk/ledger-v7` | `7.0.3` |
-| `midnight-node` (Docker) | `0.21.0` |
-| `indexer-standalone` (Docker) | `4.0.0-rc.4` |
-| `proof-server` (Docker) | `7.0.0` |
+Verified state (2026-04-27):
+
+| Component | Current track | Source |
+|-----------|--------------|--------|
+| `@midnight-ntwrk/wallet-sdk-facade` | `3.0.0` | docs |
+| `@midnight-ntwrk/midnight-js-*` | `4.0.4` | docs |
+| `@midnight-ntwrk/compact-runtime` | `0.15.0` | docs |
+| `@midnight-ntwrk/compact-js` | `2.5.0` | docs |
+| `@midnight-ntwrk/ledger-v8` | `8.0.3` | docs |
+| `midnight-node` (Docker) | `0.22.3` (Preview) / `0.22.2` (Preprod) / `0.22.1` (Mainnet) | docs |
+| `indexer-standalone` (Docker) | `4.0.1` | docs |
+| `proof-server` (Docker) | `8.0.3` | docs |
+| Compact compiler | `0.30.0` | docs |
+
+The matrix also tracks:
+
+- **`preview`** — npm `latest` tags ahead of the support matrix (`wallet-sdk-facade@4.0.0`, `wallet-sdk@1.0.0`)
+- **`legacy-v7-facade-2`** — pre-v8-ledger stacks (the legacy track most existing apps live on)
+- **`archaeological-facade-1`** — pre-2.x SDK, unsupported
 
 > The matrix is human-curated. To suggest updates, open a PR against `data/compatibility-matrix.json`.
 

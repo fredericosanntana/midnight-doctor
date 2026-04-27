@@ -1,23 +1,29 @@
 {
   "$schema": "./compatibility-matrix.schema.json",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "verifiedAt": "2026-04-27",
-  "source": "npm view @midnight-ntwrk/* version",
+  "sources": [
+    "https://docs.midnight.network/relnotes/support-matrix",
+    "npm view @midnight-ntwrk/* version",
+    "https://hub.docker.com/v2/repositories/midnightntwrk/*/tags/"
+  ],
   "tracks": {
     "current": {
-      "label": "Current (latest npm + preprod compatible)",
-      "node": "0.21.0",
-      "indexer": "4.0.0-rc.4",
-      "proofServer": "7.0.0",
+      "label": "Current (matches official Midnight support matrix)",
+      "summary": "Stable stack as listed at https://docs.midnight.network/relnotes/support-matrix — use this for new projects targeting preprod/mainnet today.",
+      "node": {
+        "preview": "0.22.3",
+        "preprod": "0.22.2",
+        "mainnet": "0.22.1"
+      },
+      "indexer": "4.0.1",
+      "proofServer": "8.0.3",
+      "compactCompiler": "0.30.0",
       "packages": {
-        "@midnight-ntwrk/wallet-sdk": "1.0.0",
-        "@midnight-ntwrk/wallet-sdk-facade": "4.0.0",
-        "@midnight-ntwrk/wallet-sdk-shielded": "3.0.0",
-        "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "3.0.0",
-        "@midnight-ntwrk/wallet-sdk-dust-wallet": "4.0.0",
-        "@midnight-ntwrk/wallet-sdk-abstractions": "2.1.0",
-        "@midnight-ntwrk/wallet-sdk-hd": "3.0.2",
-        "@midnight-ntwrk/wallet-sdk-address-format": "3.0.1",
+        "@midnight-ntwrk/compact-runtime": "0.15.0",
+        "@midnight-ntwrk/compact-js": "2.5.0",
+        "@midnight-ntwrk/ledger-v8": "8.0.3",
+        "@midnight-ntwrk/wallet-sdk-facade": "3.0.0",
         "@midnight-ntwrk/midnight-js-types": "4.0.4",
         "@midnight-ntwrk/midnight-js-contracts": "4.0.4",
         "@midnight-ntwrk/midnight-js-network-id": "4.0.4",
@@ -26,13 +32,30 @@
         "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.0.4",
         "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.0.4",
         "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.0.4",
-        "@midnight-ntwrk/compact-runtime": "0.15.0",
-        "@midnight-ntwrk/compact-js": "2.4.3",
-        "@midnight-ntwrk/ledger-v7": "7.0.3"
+        "@midnight-ntwrk/midnight-js-testkit": "4.0.4",
+        "@midnight-ntwrk/dapp-connector-api": "4.0.1"
       }
     },
-    "preprod-3x": {
-      "label": "Preprod 3.x (legacy, OK for existing apps)",
+    "preview": {
+      "label": "Preview / bleeding-edge npm latest (may not yet be on mainnet)",
+      "summary": "wallet-sdk barrel package + facade 4.0.0 line. npm `latest` tag is here but the official support matrix still lists 3.0.0 — assume forward-compat work, not production.",
+      "packages": {
+        "@midnight-ntwrk/wallet-sdk": "1.0.0",
+        "@midnight-ntwrk/wallet-sdk-facade": "4.0.0",
+        "@midnight-ntwrk/wallet-sdk-shielded": "3.0.0",
+        "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "3.0.0",
+        "@midnight-ntwrk/wallet-sdk-dust-wallet": "4.0.0",
+        "@midnight-ntwrk/wallet-sdk-abstractions": "2.1.0",
+        "@midnight-ntwrk/wallet-sdk-hd": "3.0.2"
+      },
+      "deprecation": {
+        "level": "warn",
+        "message": "wallet-sdk-facade 4.0.0 is on npm `latest` but the official Midnight support matrix (docs.midnight.network/relnotes/support-matrix) still lists 3.0.0 as current. Use 4.0.0 only if you've verified it works against your target network."
+      }
+    },
+    "legacy-v7-facade-2": {
+      "label": "Legacy v7 ledger + facade 2.x (deprecated)",
+      "summary": "Pinned to ledger-v7 7.0.3 + wallet-sdk-facade 2.0.0 + node 0.21.0. Apps shipped before the v8 ledger transition. Workable, but new development should target the current track.",
       "node": "0.21.0",
       "indexer": "4.0.0-rc.4",
       "proofServer": "7.0.0",
@@ -42,26 +65,25 @@
         "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "2.0.0",
         "@midnight-ntwrk/wallet-sdk-dust-wallet": "2.0.0",
         "@midnight-ntwrk/midnight-js-types": "3.2.0",
-        "@midnight-ntwrk/midnight-js-contracts": "3.2.0",
         "@midnight-ntwrk/compact-runtime": "0.14.0",
+        "@midnight-ntwrk/compact-js": "2.4.3",
         "@midnight-ntwrk/ledger-v7": "7.0.3"
       },
       "deprecation": {
         "level": "warn",
-        "message": "SDK 3.2 / facade 2.0 is 2 majors behind. Current is wallet-sdk@1.0.0 / facade@4.0.0 (released 2026-04-23). The WalletFacade.init({...}) constructor used in 2.0 has been removed; 4.0 reverted to `new WalletFacade(s, u, d) + .start()`. Plan a migration."
+        "message": "v7 ledger + facade 2.x is 1+ majors behind the official support matrix. Migration to ledger-v8 + facade 3.x or 4.x is non-trivial: the API moved from `WalletFacade.init({...})` to `new WalletFacade(...) + .start()` and ledger-v8 introduces new transaction shapes. Plan a migration window."
       }
     },
-    "preprod-1x": {
-      "label": "Preprod 1.x (deep legacy)",
+    "archaeological-facade-1": {
+      "label": "Archaeological (facade 1.x)",
+      "summary": "Pre-2.x SDK. Not supported, no security patches expected.",
       "node": "0.21.0",
       "packages": {
-        "@midnight-ntwrk/wallet-sdk-facade": "1.0.0",
-        "@midnight-ntwrk/midnight-js-types": "3.1.0",
-        "@midnight-ntwrk/compact-runtime": "0.14.0"
+        "@midnight-ntwrk/wallet-sdk-facade": "1.0.0"
       },
       "deprecation": {
         "level": "error",
-        "message": "SDK 1.x is deeply outdated. No security patches expected. Migrate to current."
+        "message": "wallet-sdk-facade 1.x predates the official support matrix. Migrate immediately."
       }
     }
   },
@@ -76,10 +98,10 @@
       },
       "title": "Invalid npm registry: npm.midnight.network does not exist",
       "detail": "Several community tutorials reference @midnight-ntwrk:registry=https://npm.midnight.network/. This domain has no DNS record and causes ENOTFOUND errors.",
-      "fix": "Delete the line from .npmrc (or delete the file). All @midnight-ntwrk packages are on the standard npmjs.org registry."
+      "fix": "Delete the line from .npmrc (or delete the file). All @midnight-ntwrk packages are published to the standard npmjs.org registry."
     },
     {
-      "id": "duplicate-ledger",
+      "id": "duplicate-ledger-v7",
       "severity": "error",
       "match": {
         "type": "duplicate-package",
@@ -90,6 +112,31 @@
       "fix": "Run `npm dedupe @midnight-ntwrk/ledger-v7` (or `pnpm dedupe`). Pin one version in your root package.json."
     },
     {
+      "id": "duplicate-ledger-v8",
+      "severity": "error",
+      "match": {
+        "type": "duplicate-package",
+        "package": "@midnight-ntwrk/ledger-v8"
+      },
+      "title": "Multiple versions of @midnight-ntwrk/ledger-v8 in node_modules",
+      "detail": "When two ledger-v8 versions are loaded, transactions silently fail without errors.",
+      "fix": "Run `npm dedupe @midnight-ntwrk/ledger-v8` (or `pnpm dedupe`). Pin one version in your root package.json."
+    },
+    {
+      "id": "ledger-v7-and-v8-coexist",
+      "severity": "warn",
+      "match": {
+        "type": "package-coexistence",
+        "packages": [
+          "@midnight-ntwrk/ledger-v7",
+          "@midnight-ntwrk/ledger-v8"
+        ]
+      },
+      "title": "Both ledger-v7 and ledger-v8 are installed",
+      "detail": "Carrying both major ledger packages usually means an in-flight migration. Make sure exactly one of them is actually used at runtime; otherwise transaction shapes will mismatch silently.",
+      "fix": "Pick one ledger major (current track is v8 8.0.3). Remove the other, run `npm dedupe`."
+    },
+    {
       "id": "duplicate-runtime",
       "severity": "error",
       "match": {
@@ -97,7 +144,7 @@
         "package": "@midnight-ntwrk/compact-runtime"
       },
       "title": "Multiple versions of @midnight-ntwrk/compact-runtime in node_modules",
-      "detail": "Mixed compact-runtime versions cause circuit serialization mismatches.",
+      "detail": "Mixed compact-runtime versions cause circuit serialization mismatches (\"Unknown discriminant\" errors).",
       "fix": "Run `npm dedupe @midnight-ntwrk/compact-runtime`. Confirm a single version with `find node_modules -path '*/compact-runtime/package.json'`."
     },
     {
@@ -109,8 +156,8 @@
         "range": "2.x"
       },
       "title": "WalletFacade.init() in 2.x stalls on standalone dev nodes",
-      "detail": "In SDK 2.x, WalletFacade.init() subscribes to runtime version events that the standalone node closes early. The wallet hangs in 'syncing' state forever with no error.",
-      "fix": "Either (a) develop against preprod once past hello-world, or (b) upgrade to wallet-sdk-facade@4.0.0 which reverted to constructor + .start() pattern."
+      "detail": "In SDK 2.x, WalletFacade.init() subscribes to runtime version events that the standalone node closes early. The wallet hangs in 'syncing' state forever with no error. Reproducible with `subscribeRuntimeVersion: disconnected from ws://...:9944/: 1000:: Normal Closure`.",
+      "fix": "Either (a) develop against preprod once past hello-world, or (b) migrate to wallet-sdk-facade 3.x (current support matrix) or 4.x (npm latest), both of which use the constructor + .start() pattern."
     },
     {
       "id": "facade-major-mismatch",
@@ -125,8 +172,32 @@
         ]
       },
       "title": "wallet-sdk subpackages span multiple major versions",
-      "detail": "Mixing wallet-sdk-facade@4.x with wallet-sdk-shielded@2.x (etc) leads to silent type errors at runtime — facade expects state shapes the older subpackages don't produce.",
-      "fix": "Use the @midnight-ntwrk/wallet-sdk barrel package (1.0.0) which keeps subpackages in lockstep, or pin all wallet-sdk-* packages to the same major manually."
+      "detail": "Mixing wallet-sdk-facade@4.x with wallet-sdk-shielded@2.x (etc) causes silent type errors at runtime — the facade expects state shapes the older subpackages don't produce.",
+      "fix": "Use the @midnight-ntwrk/wallet-sdk barrel package which keeps subpackages in lockstep, or pin all wallet-sdk-* packages to the same major manually."
+    },
+    {
+      "id": "proof-server-major-stale",
+      "severity": "warn",
+      "match": {
+        "type": "docker-tag-major-stale",
+        "image": "midnightntwrk/proof-server",
+        "minMajor": 8
+      },
+      "title": "proof-server is at a major behind the current support matrix (8.x)",
+      "detail": "Running proof-server:7.x against a project on ledger-v8 / compact-runtime 0.15.0 leads to ProofPreimageVersioned / 'Unknown discriminant 109'-class errors. Cross-confirmed by midnightntwrk/create-mn-app issue #34.",
+      "fix": "Pull `midnightntwrk/proof-server:8.0.3` (or 8.1.0-rc.1 for preview)."
+    },
+    {
+      "id": "node-major-stale",
+      "severity": "warn",
+      "match": {
+        "type": "docker-tag-major-stale",
+        "image": "midnightntwrk/midnight-node",
+        "minMinor": "0.22"
+      },
+      "title": "midnight-node is older than the current support matrix (0.22.x line)",
+      "detail": "Official support matrix lists Preview 0.22.3 / Preprod 0.22.2 / Mainnet 0.22.1. Older 0.21.x nodes still work for legacy stacks but cannot run ledger-v8 contracts.",
+      "fix": "Pull the appropriate `midnightntwrk/midnight-node:0.22.x` for your target network, or 1.0.0-rc.4 for preview."
     }
   ],
   "configChecks": [
@@ -139,7 +210,7 @@
         "missing": "subscription"
       },
       "title": "indexer-standalone 4.x requires a subscription block",
-      "detail": "Indexer 4.0.0-rc.4+ won't start without `subscription:` config; will crash-loop without a clear message.",
+      "detail": "Indexer 4.0.0+ won't start without `subscription:` config; will crash-loop without a clear message.",
       "fix": "Add a `subscription:` section to indexer.yml. Reference template in docs.midnight.network."
     }
   ]

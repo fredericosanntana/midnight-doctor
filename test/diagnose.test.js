@@ -6,7 +6,25 @@ import { loadMatrix } from '../lib/index.js';
 
 const matrix = await loadMatrix();
 
-test('detects current track when facade is 4.x', () => {
+test('detects current track when facade is 3.x (matches official support matrix)', () => {
+  const out = diagnose({
+    pkg: {
+      packageJsonFound: true,
+      missingNodeModules: false,
+      declared: {},
+      installed: { '@midnight-ntwrk/wallet-sdk-facade': '3.0.0' },
+      duplicates: {},
+    },
+    docker: { dockerAvailable: false, containers: {} },
+    config: { npmrc: { exists: false }, indexerYml: null, envFiles: [] },
+    matrix,
+  });
+  const trackDiag = out.find((d) => d.id === 'track-detected');
+  assert.equal(trackDiag.severity, 'ok');
+  assert.match(trackDiag.title, /Current/);
+});
+
+test('detects preview track when facade is 4.x (npm latest, ahead of support matrix)', () => {
   const out = diagnose({
     pkg: {
       packageJsonFound: true,
@@ -20,8 +38,9 @@ test('detects current track when facade is 4.x', () => {
     matrix,
   });
   const trackDiag = out.find((d) => d.id === 'track-detected');
-  assert.equal(trackDiag.severity, 'ok');
-  assert.match(trackDiag.title, /Current/);
+  assert.match(trackDiag.title, /Preview/);
+  const dep = out.find((d) => d.id.startsWith('track-deprecated'));
+  assert.ok(dep, 'should warn about preview being ahead of support matrix');
 });
 
 test('flags deprecated track when facade is 2.x', () => {
@@ -73,8 +92,8 @@ test('flags duplicate ledger-v7', () => {
     config: { npmrc: { exists: false }, indexerYml: null, envFiles: [] },
     matrix,
   });
-  const dup = out.find((d) => d.id === 'duplicate-ledger');
-  assert.ok(dup, 'should flag duplicate ledger');
+  const dup = out.find((d) => d.id === 'duplicate-ledger-v7');
+  assert.ok(dup, 'should flag duplicate ledger-v7');
   assert.equal(dup.severity, 'error');
 });
 
@@ -122,41 +141,43 @@ test('flags wallet-sdk subpackage major mismatch', () => {
   assert.equal(mismatch.severity, 'error');
 });
 
-test('cross-cuts node container with SDK track', () => {
-  const out = diagnose({
-    pkg: {
-      packageJsonFound: true,
-      missingNodeModules: false,
-      declared: {},
-      installed: { '@midnight-ntwrk/wallet-sdk-facade': '4.0.0' },
-      duplicates: {},
-    },
-    docker: {
-      dockerAvailable: true,
-      containers: {
-        node: { image: 'midnightntwrk/midnight-node', tag: '0.21.0', name: 'node', status: 'Up' },
+test('cross-cuts current-track facade 3.x with node 0.22.x (preprod/preview/mainnet)', () => {
+  for (const tag of ['0.22.1', '0.22.2', '0.22.3']) {
+    const out = diagnose({
+      pkg: {
+        packageJsonFound: true,
+        missingNodeModules: false,
+        declared: {},
+        installed: { '@midnight-ntwrk/wallet-sdk-facade': '3.0.0' },
+        duplicates: {},
       },
-    },
-    config: { npmrc: { exists: false }, indexerYml: null, envFiles: [] },
-    matrix,
-  });
-  const match = out.find((d) => d.id === 'node-track-match');
-  assert.ok(match, 'should confirm node matches track');
+      docker: {
+        dockerAvailable: true,
+        containers: {
+          node: { image: 'midnightntwrk/midnight-node', tag, name: 'node', status: 'Up' },
+        },
+      },
+      config: { npmrc: { exists: false }, indexerYml: null, envFiles: [] },
+      matrix,
+    });
+    const match = out.find((d) => d.id === 'node-track-match');
+    assert.ok(match, `should match for node ${tag}`);
+  }
 });
 
-test('flags node/SDK mismatch when versions diverge', () => {
+test('flags node/SDK mismatch when legacy facade 2.x runs against 0.22.x node', () => {
   const out = diagnose({
     pkg: {
       packageJsonFound: true,
       missingNodeModules: false,
       declared: {},
-      installed: { '@midnight-ntwrk/wallet-sdk-facade': '4.0.0' },
+      installed: { '@midnight-ntwrk/wallet-sdk-facade': '2.0.0' },
       duplicates: {},
     },
     docker: {
       dockerAvailable: true,
       containers: {
-        node: { image: 'midnightntwrk/midnight-node', tag: '0.22.0', name: 'node', status: 'Up' },
+        node: { image: 'midnightntwrk/midnight-node', tag: '0.22.2', name: 'node', status: 'Up' },
       },
     },
     config: { npmrc: { exists: false }, indexerYml: null, envFiles: [] },
