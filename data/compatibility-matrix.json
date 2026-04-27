@@ -1,0 +1,146 @@
+{
+  "$schema": "./compatibility-matrix.schema.json",
+  "version": "0.1.0",
+  "verifiedAt": "2026-04-27",
+  "source": "npm view @midnight-ntwrk/* version",
+  "tracks": {
+    "current": {
+      "label": "Current (latest npm + preprod compatible)",
+      "node": "0.21.0",
+      "indexer": "4.0.0-rc.4",
+      "proofServer": "7.0.0",
+      "packages": {
+        "@midnight-ntwrk/wallet-sdk": "1.0.0",
+        "@midnight-ntwrk/wallet-sdk-facade": "4.0.0",
+        "@midnight-ntwrk/wallet-sdk-shielded": "3.0.0",
+        "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "3.0.0",
+        "@midnight-ntwrk/wallet-sdk-dust-wallet": "4.0.0",
+        "@midnight-ntwrk/wallet-sdk-abstractions": "2.1.0",
+        "@midnight-ntwrk/wallet-sdk-hd": "3.0.2",
+        "@midnight-ntwrk/wallet-sdk-address-format": "3.0.1",
+        "@midnight-ntwrk/midnight-js-types": "4.0.4",
+        "@midnight-ntwrk/midnight-js-contracts": "4.0.4",
+        "@midnight-ntwrk/midnight-js-network-id": "4.0.4",
+        "@midnight-ntwrk/midnight-js-utils": "4.0.4",
+        "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.0.4",
+        "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.0.4",
+        "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.0.4",
+        "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.0.4",
+        "@midnight-ntwrk/compact-runtime": "0.15.0",
+        "@midnight-ntwrk/compact-js": "2.4.3",
+        "@midnight-ntwrk/ledger-v7": "7.0.3"
+      }
+    },
+    "preprod-3x": {
+      "label": "Preprod 3.x (legacy, OK for existing apps)",
+      "node": "0.21.0",
+      "indexer": "4.0.0-rc.4",
+      "proofServer": "7.0.0",
+      "packages": {
+        "@midnight-ntwrk/wallet-sdk-facade": "2.0.0",
+        "@midnight-ntwrk/wallet-sdk-shielded": "2.0.0",
+        "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "2.0.0",
+        "@midnight-ntwrk/wallet-sdk-dust-wallet": "2.0.0",
+        "@midnight-ntwrk/midnight-js-types": "3.2.0",
+        "@midnight-ntwrk/midnight-js-contracts": "3.2.0",
+        "@midnight-ntwrk/compact-runtime": "0.14.0",
+        "@midnight-ntwrk/ledger-v7": "7.0.3"
+      },
+      "deprecation": {
+        "level": "warn",
+        "message": "SDK 3.2 / facade 2.0 is 2 majors behind. Current is wallet-sdk@1.0.0 / facade@4.0.0 (released 2026-04-23). The WalletFacade.init({...}) constructor used in 2.0 has been removed; 4.0 reverted to `new WalletFacade(s, u, d) + .start()`. Plan a migration."
+      }
+    },
+    "preprod-1x": {
+      "label": "Preprod 1.x (deep legacy)",
+      "node": "0.21.0",
+      "packages": {
+        "@midnight-ntwrk/wallet-sdk-facade": "1.0.0",
+        "@midnight-ntwrk/midnight-js-types": "3.1.0",
+        "@midnight-ntwrk/compact-runtime": "0.14.0"
+      },
+      "deprecation": {
+        "level": "error",
+        "message": "SDK 1.x is deeply outdated. No security patches expected. Migrate to current."
+      }
+    }
+  },
+  "knownIssues": [
+    {
+      "id": "npmrc-bad-registry",
+      "severity": "error",
+      "match": {
+        "type": "config",
+        "file": ".npmrc",
+        "pattern": "npm\\.midnight\\.network"
+      },
+      "title": "Invalid npm registry: npm.midnight.network does not exist",
+      "detail": "Several community tutorials reference @midnight-ntwrk:registry=https://npm.midnight.network/. This domain has no DNS record and causes ENOTFOUND errors.",
+      "fix": "Delete the line from .npmrc (or delete the file). All @midnight-ntwrk packages are on the standard npmjs.org registry."
+    },
+    {
+      "id": "duplicate-ledger",
+      "severity": "error",
+      "match": {
+        "type": "duplicate-package",
+        "package": "@midnight-ntwrk/ledger-v7"
+      },
+      "title": "Multiple versions of @midnight-ntwrk/ledger-v7 in node_modules",
+      "detail": "When two ledger-v7 versions are loaded, transactions silently fail without errors.",
+      "fix": "Run `npm dedupe @midnight-ntwrk/ledger-v7` (or `pnpm dedupe`). Pin one version in your root package.json."
+    },
+    {
+      "id": "duplicate-runtime",
+      "severity": "error",
+      "match": {
+        "type": "duplicate-package",
+        "package": "@midnight-ntwrk/compact-runtime"
+      },
+      "title": "Multiple versions of @midnight-ntwrk/compact-runtime in node_modules",
+      "detail": "Mixed compact-runtime versions cause circuit serialization mismatches.",
+      "fix": "Run `npm dedupe @midnight-ntwrk/compact-runtime`. Confirm a single version with `find node_modules -path '*/compact-runtime/package.json'`."
+    },
+    {
+      "id": "facade-2x-init-bug",
+      "severity": "warn",
+      "match": {
+        "type": "package-version",
+        "package": "@midnight-ntwrk/wallet-sdk-facade",
+        "range": "2.x"
+      },
+      "title": "WalletFacade.init() in 2.x stalls on standalone dev nodes",
+      "detail": "In SDK 2.x, WalletFacade.init() subscribes to runtime version events that the standalone node closes early. The wallet hangs in 'syncing' state forever with no error.",
+      "fix": "Either (a) develop against preprod once past hello-world, or (b) upgrade to wallet-sdk-facade@4.0.0 which reverted to constructor + .start() pattern."
+    },
+    {
+      "id": "facade-major-mismatch",
+      "severity": "error",
+      "match": {
+        "type": "package-version-mismatch",
+        "packages": [
+          "@midnight-ntwrk/wallet-sdk-facade",
+          "@midnight-ntwrk/wallet-sdk-shielded",
+          "@midnight-ntwrk/wallet-sdk-unshielded-wallet",
+          "@midnight-ntwrk/wallet-sdk-dust-wallet"
+        ]
+      },
+      "title": "wallet-sdk subpackages span multiple major versions",
+      "detail": "Mixing wallet-sdk-facade@4.x with wallet-sdk-shielded@2.x (etc) leads to silent type errors at runtime — facade expects state shapes the older subpackages don't produce.",
+      "fix": "Use the @midnight-ntwrk/wallet-sdk barrel package (1.0.0) which keeps subpackages in lockstep, or pin all wallet-sdk-* packages to the same major manually."
+    }
+  ],
+  "configChecks": [
+    {
+      "id": "indexer-subscription-block",
+      "severity": "warn",
+      "match": {
+        "type": "config",
+        "file": "indexer.yml",
+        "missing": "subscription"
+      },
+      "title": "indexer-standalone 4.x requires a subscription block",
+      "detail": "Indexer 4.0.0-rc.4+ won't start without `subscription:` config; will crash-loop without a clear message.",
+      "fix": "Add a `subscription:` section to indexer.yml. Reference template in docs.midnight.network."
+    }
+  ]
+}
